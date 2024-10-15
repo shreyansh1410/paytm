@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const authMiddleware = require("../middlewares/authMiddleware");
-const { User, Course } = require("../db");
+const { User, Accounts } = require("../db");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const zod = require("zod");
@@ -29,15 +29,20 @@ const updateBody = zod.object({
 // User Routes
 router.post("/signup", async (req, res) => {
   // Implement user signup logic
-  const { username, firstName, lastName, password } = req.body;
+  const { username, firstName, lastName, password } = req.body; 
+
+  //zod validation
   const { success } = signupBody.safeParse(req.body);
   if (!success) return res.status(411).json({ msg: "Invalid input" });
   try {
+
+    //check existing user
     const existingUser = await User.findOne({ username: username });
     if (existingUser) {
       return res.status(400).json({ msg: "User already exists" });
     }
 
+    //create new user
     const user = new User({
       username: username,
       firstName: firstName,
@@ -45,7 +50,19 @@ router.post("/signup", async (req, res) => {
       password: password,
     });
 
+    //give the user a random balance between 1 and 10000.
+    const account = new Accounts({
+      balance: 1 + Math.random() * 10000,
+      userId: user._id,
+    });
+
+    //save user details
     await user.save();
+
+    //save account details
+    await account.save();
+
+    //return if successful
     return res.json({
       msg: "User created successfully",
       token: jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
@@ -63,6 +80,7 @@ router.post("/signin", async (req, res) => {
   // Implement admin signin logic
   const { username, password } = req.body;
 
+  //zod validation
   const { success } = signinBody.safeParse(req.body);
   if (!success) return res.status(411).json({ msg: "Invalid input" });
 
