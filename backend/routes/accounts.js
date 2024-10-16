@@ -8,32 +8,36 @@ router.get("/", (req, res) => {
   return res.status(200).json({ msg: "hello world" });
 });
 
-//get balance of user, authmiddleware has assigned req.user = decoded
+// Get balance of user
 router.get("/balance", authMiddleware, async (req, res) => {
-  //   console.log(userId);
-  //   console.log(req.user.id);
-  const account = await Accounts.findOne({
-    userId: new mongoose.Types.ObjectId(req.user.id),
-  });
-  if (!account) {
-    return res.status(404).json({ msg: "Account not found" });
+  try {
+    const account = await Accounts.findOne({
+      userId: new mongoose.Types.ObjectId(req.user.id),
+    });
+    if (!account) {
+      return res.status(404).json({ msg: "Account not found" });
+    }
+    return res.status(200).json({ balance: account.balance });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
   }
-  return res.status(200).json({ balance: account.balance });
 });
 
-//transfer money from one account to another
+// Transfer money from one account to another
 router.post("/transfer", authMiddleware, async (req, res) => {
-  //implementing transactions in mongodb: (to ensure atomicity, all or none)
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const { to, amount } = req.body;
     const userid = req.user.id;
-    const toAccount = await Accounts.findOne({ userId: to }).session(session);
-    console.log(req.user.id);
+
+    const toAccount = await Accounts.findOne({
+      userId: new mongoose.Types.ObjectId(to),
+    }).session(session);
+
     const fromAccount = await Accounts.findOne({
-      userId: new mongoose.Types.ObjectId(req.user.id),
+      userId: new mongoose.Types.ObjectId(userid),
     }).session(session);
 
     // Check if both accounts exist
@@ -54,32 +58,37 @@ router.post("/transfer", authMiddleware, async (req, res) => {
     }
 
     // Perform the transfer
-    await fromAccount
-      .updateOne(
-        { userId: new mongoose.Types.ObjectId(req.user.id) },
-        { $inc: { balance: -amount } }
-      )
-      .session(session);
-    await toAccount
-      .updateOne(
-        { userId: new mongoose.Types.ObjectId(to) },
-        { $inc: { balance: amount } }
-      )
-      .session(session);
+    const updateFromAccount = await Accounts.findOneAndUpdate(
+      { userId: new mongoose.Types.ObjectId(userid) },
+      { $inc: { balance: -amount } },
+      { new: true, session } // Ensure session is used and return updated document
+    );
 
-    //commit the transaction
+    const updateToAccount = await Accounts.findOneAndUpdate(
+      { userId: new mongoose.Types.ObjectId(to) },
+      { $inc: { balance: amount } },
+      { new: true, session }
+    );
+
+    if (!updateFromAccount || !updateToAccount) {
+      await session.abortTransaction();
+      return res.status(500).json({ msg: "Transaction failed" });
+    }
+
+    // Commit the transaction
     await session.commitTransaction();
 
-    
     return res.status(200).json({
       msg: "Transfer successful",
+      fromAccountBalance: updateFromAccount.balance,
+      toAccountBalance: updateToAccount.balance,
     });
   } catch (err) {
-    //abort transaction
+    // Abort transaction in case of error
     await session.abortTransaction();
     return res.status(500).json({ msg: err.message });
   } finally {
-    //end session
+    // End session
     session.endSession();
   }
 });
