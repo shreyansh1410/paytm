@@ -4,10 +4,10 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
-import Send from "./components/Send.jsx";
-import Dashboard from "./components/Dashboard.jsx";
-import Signup from "./components/Signup.jsx";
-import Signin from "./components/Signin.jsx";
+import Send from "./pages/Send.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Signup from "./pages/Signup.jsx";
+import Signin from "./pages/Signin.jsx";
 
 function App() {
   return (
