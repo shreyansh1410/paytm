@@ -19,6 +19,8 @@ export default {
         },
       },
       fontFamily: {
+        trocchi: ["Trocchi", "serif"],
+        roboto: ["Roboto", "sans-serif"],
         body: [
           "Inter",
           "ui-sans-serif",
@@ -53,6 +55,18 @@ export default {
           "Segoe UI Symbol",
           "Noto Color Emoji",
         ],
+      },
+      fontWeight: {
+        thin: 100,
+        light: 300,
+        normal: 400,
+        medium: 500,
+        bold: 700,
+        black: 900,
+      },
+      fontStyle: {
+        italic: "italic",
+        normal: "normal",
       },
     },
   },
