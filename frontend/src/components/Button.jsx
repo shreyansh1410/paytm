@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Button = ({ buttonText, onClick }) => {
+export const Button = ({buttonText, onClick }) => {
   return (
     <div className="">
       <button
