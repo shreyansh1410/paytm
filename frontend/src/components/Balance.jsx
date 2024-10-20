@@ -1,3 +1,5 @@
+import { Button } from "./Button";
+
 export const Balance = ({ balance }) => {
   return (
     <div className="p-4 px-6 border-b-2 border-gray-400">

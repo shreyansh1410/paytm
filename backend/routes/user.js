@@ -29,13 +29,12 @@ const updateBody = zod.object({
 // User Routes
 router.post("/signup", async (req, res) => {
   // Implement user signup logic
-  const { username, firstName, lastName, password } = req.body; 
+  const { username, firstName, lastName, password } = req.body;
 
   //zod validation
   const { success } = signupBody.safeParse(req.body);
   if (!success) return res.status(411).json({ msg: "Invalid input" });
   try {
-
     //check existing user
     const existingUser = await User.findOne({ username: username });
     if (existingUser) {
@@ -52,7 +51,7 @@ router.post("/signup", async (req, res) => {
 
     //give the user a random balance between 1 and 10000.
     const account = new Accounts({
-      balance: 1 + Math.random() * 10000,
+      balance: 1 + Math.floor(Math.random() * 10000),
       userId: user._id,
     });
 

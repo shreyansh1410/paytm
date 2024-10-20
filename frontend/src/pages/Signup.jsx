@@ -29,6 +29,7 @@ const Signup = () => {
       });
       console.log(res);
       if (res.data.msg === "User created successfully") {
+        localStorage.setItem("token", res.data.token);
         navigate("/dashboard");
       }
     } catch (err) {

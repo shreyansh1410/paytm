@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-export function InputBox({innerRef, label, placeholder }) {
+export function InputBox({ innerRef, label, placeholder }) {
   const ref = useRef("");
   return (
     <div>
