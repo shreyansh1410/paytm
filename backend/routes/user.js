@@ -67,9 +67,13 @@ router.post("/signup", async (req, res) => {
     // Return successful response
     return res.json({
       msg: "User created successfully",
-      token: jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
-        expiresIn: "1h",
-      }),
+      token: jwt.sign(
+        { id: user._id, username: user.username, firstName: user.firstName },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      ),
     });
   } catch (err) {
     return res
@@ -96,9 +100,13 @@ router.post("/signin", async (req, res) => {
     if (!isMatch) return res.status(401).json({ msg: "Incorrect password" });
 
     // Generate token
-    const token = jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user._id, username: user.username, firstName: user.firstName },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     return res.json({ token });
   } catch (err) {
