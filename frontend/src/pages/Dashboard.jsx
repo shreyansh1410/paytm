@@ -6,15 +6,11 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
-
 const Dashboard = () => {
   const [balance, setBalance] = useState("****");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
-  // useEffect(() => {
-  //   getBalance();
-  // }, []);
+  const [userId, setUserId] = useState(null);
 
   async function getBalance() {
     try {
@@ -27,7 +23,7 @@ const Dashboard = () => {
       });
 
       console.log(res);
-      if (res.data.status === 200) {
+      if (res.status === 200) {
         setBalance(res.data.balance);
         console.log(balance);
       }
@@ -36,27 +32,36 @@ const Dashboard = () => {
     }
   }
 
-  const showBalance = () => {
-    getBalance();
-  };
-
-  if (!token) {
-    navigate("/signin");
-  } else {
-    const tokenDecoded = jwtDecode(token);
-    if (tokenDecoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem("token");
+  useEffect(() => {
+    if (!token) {
       navigate("/signin");
+    } else {
+      const tokenDecoded = jwtDecode(token);
+      if (tokenDecoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        navigate("/signin");
+      } else {
+        setUserId(tokenDecoded.id);
+        // getBalance();
+      }
+      console.log(tokenDecoded.id);
     }
+  }, []);
 
-    console.log(tokenDecoded.id);
-  }
   return (
     <div className="bg-slate-300 flex flex-col h-screen font-roboto">
       {/* Appbar fixed at the top */}
       <Appbar className="fixed top-0 left-0 right-0 z-10" firstName="John" />
-      <Button buttonText={"Show Balance"} onclick={showBalance} />
-      <Balance balance={balance} />
+      <div className="flex items-center my-2 border-b-2 border-gray-400">
+        <Balance balance={balance} />
+        <Button
+          className="my-2"
+          buttonText={`${
+            balance === "****" ? "Get Balance" : "Refresh Balance"
+          }`}
+          onClick={getBalance}
+        />
+      </div>
       <Users />
     </div>
   );
