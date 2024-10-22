@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./Button";
+import { Send } from "../pages/Send";
 
-const SingleUser = ({firstName, lastName}) => {
+const SingleUser = ({ id, firstName, lastName }) => {
   const navigate = useNavigate();
   firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
   lastName = lastName.charAt(0).toUpperCase() + lastName.slice(1);
@@ -14,7 +15,7 @@ const SingleUser = ({firstName, lastName}) => {
               {firstName[0]}
             </div>
           </div>
-          <div className="flex flex-col justify-center h-ful">
+          <div className="flex flex-col justify-center h-full">
             <div>
               {firstName} {lastName}
             </div>
@@ -24,8 +25,9 @@ const SingleUser = ({firstName, lastName}) => {
         <div className="flex flex-col justify-center h-ful">
           <Button
             onClick={(e) => {
-              //   navigate("/send?id=" + user._id + "&name=" + user.firstName);
-              alert("Hi");
+              // navigate("/send?id=" + id + "&name=" + firstName);
+              <Send id={id} firstName={firstName} lastName={lastName} />;
+              // alert("Hi");
             }}
             buttonText={"Send Money"}
           />

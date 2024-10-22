@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
 import SingleUser from "./SingleUser";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export const Users = () => {
   const [filter, setFilter] = useState("");
   const [users, setUsers] = useState([]);
-
+  const [userId, setUserId] = useState("");
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/signin");
+    } else {
+      const tokenDecoded = jwtDecode(token);
+      if (tokenDecoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        navigate("/signin");
+      }
+      setUserId(tokenDecoded.id);
+    }
+  }, []);
 
   useEffect(() => {
     getUsers();
@@ -54,9 +69,17 @@ export const Users = () => {
         </div>
       </div>
 
-      {users.length > 0 && users.map((user) => {
-        return <SingleUser key={user._id} firstName={user.firstName } lastName={user.lastName} />;
-      })}
+      {users.length > 0 &&
+        users.map((user) => {
+          return (
+           user._id===userId?null: (<SingleUser
+            key={user._id}
+            firstName={user.firstName}
+            lastName={user.lastName}
+            id={user._id}
+          />)
+          );
+        })}
     </div>
   );
 };
