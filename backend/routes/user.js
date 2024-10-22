@@ -93,6 +93,12 @@ router.post("/signin", async (req, res) => {
     if (!user) {
       return res.status(411).json({ msg: "user not found" });
     }
+
+    // Compare the provided password directly with the stored password
+    if (password !== user.password) {
+      return res.status(401).json({ msg: "Invalid credentials" });
+    }
+
     const fname = user.firstName;
     var token = jwt.sign(
       { id: user._id, name: user.username, firstName: fname },

@@ -1,12 +1,37 @@
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { ArrowRight } from "lucide-react";
+import axios from "axios";
+import { useState } from "react";
 
 export const Send = () => {
+  const token = localStorage.getItem("token");
+  const [amount, setAmount] = useState(0);
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("id");
+  console.log("user id: " + userId.toString());
   const firstName = searchParams.get("firstName") || "J";
   const lastName = searchParams.get("lastName") || "Doe";
+
+  async function sendMoney() {
+    try {
+      const res = await axios({
+        method: "POST",
+        url: "http://localhost:3000/api/v1/account/transfer",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          to: userId.toString(),
+          amount: amount,
+        },
+      });
+      console.log(res);
+      alert("Transfer successfull");
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
@@ -32,6 +57,9 @@ export const Send = () => {
             type="number"
             placeholder="Enter amount"
             className="w-full px-3 py-2 text-gray-200 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => {
+              setAmount(e.target.value);
+            }}
           />
         </div>
         <div className="flex justify-end">
@@ -39,6 +67,7 @@ export const Send = () => {
             buttonText="Send"
             onClick={() => {
               alert("send");
+              sendMoney();
             }}
           >
             <ArrowRight className="ml-2" size={16} />
