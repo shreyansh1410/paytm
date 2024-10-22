@@ -132,15 +132,30 @@ router.put("/update", authMiddleware, async (req, res) => {
 });
 
 router.get("/bulk", async (req, res) => {
-  const { filter } = req.query;
+  let { filter } = req.query;
 
-  // Ensure filter query is provided
-  if (!filter) {
-    return res.status(400).json({ msg: "Filter query parameter is required" });
+  // If the filter is "all" or not provided, return all users
+  if (!filter || filter.trim().toLowerCase() === "all") {
+    try {
+      const users = await User.find({}, "firstName lastName _id"); // Fetch all users
+      return res.status(200).json({
+        users: users.map((user) => ({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          _id: user._id,
+        })),
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ msg: "Error fetching users", error: err.message });
+    }
   }
 
+  // Otherwise, filter users by the provided filter value
+  filter = filter.trim();
+
   try {
-    // Perform case-insensitive search on both 'firstName' and 'lastName'
     const users = await User.find(
       {
         $or: [
@@ -148,17 +163,15 @@ router.get("/bulk", async (req, res) => {
           { lastName: { $regex: filter, $options: "i" } },
         ],
       },
-      "firstName lastName _id" // Only select 'firstName', 'lastName', and '_id'
+      "firstName lastName _id"
     );
 
-    // Check if no users were found
     if (users.length === 0) {
       return res
         .status(404)
         .json({ msg: "No users found matching the filter" });
     }
 
-    // Format response as required
     return res.status(200).json({
       users: users.map((user) => ({
         firstName: user.firstName,

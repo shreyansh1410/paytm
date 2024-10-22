@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SingleUser from "./SingleUser";
+import axios from "axios";
 
 export const Users = () => {
+  const [filter, setFilter] = useState("");
+  const [users, setUsers] = useState([]);
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    getUsers();
+  }, [filter]);
+
+  async function getUsers() {
+    try {
+      const res = await axios({
+        method: "GET",
+        url: "http://localhost:3000/api/v1/user/bulk?filter=" + filter,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(res.data.users);
+      setUsers(res.data.users);
+      console.log(users);
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
   return (
     <div className="flex flex-col p-4 px-6">
       <div className="font-bold text-2xl">Users</div>
@@ -19,13 +46,17 @@ export const Users = () => {
             type="email"
             placeholder="Search Users"
             className="w-full outline-none bg-transparent text-gray-600 text-sm"
+            onChange={(e) => {
+              setFilter(e.target.value);
+              console.log(filter);
+            }}
           />
         </div>
       </div>
 
-      <div>
-        <SingleUser firstName="John" lastName="Doe" />
-      </div>
+      {users.length > 0 && users.map((user) => {
+        return <SingleUser key={user._id} firstName={user.firstName } lastName={user.lastName} />;
+      })}
     </div>
   );
 };

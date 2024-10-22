@@ -1,20 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./Button";
 
-const SingleUser = (user) => {
+const SingleUser = ({firstName, lastName}) => {
   const navigate = useNavigate();
+  firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  lastName = lastName.charAt(0).toUpperCase() + lastName.slice(1);
   return (
     <div>
       <div className="flex justify-between items-center border-b-2 p-4">
         <div className="flex items-center">
           <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
             <div className="flex flex-col justify-center h-full text-xl">
-              {user.firstName[0]}
+              {firstName[0]}
             </div>
           </div>
           <div className="flex flex-col justify-center h-ful">
             <div>
-              {user.firstName} {user.lastName}
+              {firstName} {lastName}
             </div>
           </div>
         </div>
