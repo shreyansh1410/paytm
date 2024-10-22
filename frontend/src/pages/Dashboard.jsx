@@ -7,7 +7,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 const Dashboard = () => {
-  const [firstName, setFirstName] = useState("");
   const [balance, setBalance] = useState("****");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -40,8 +39,6 @@ const Dashboard = () => {
       if (tokenDecoded.exp * 1000 < Date.now()) {
         localStorage.removeItem("token");
         navigate("/signin");
-      } else {
-        setFirstName(tokenDecoded.firstName);
       }
       console.log(tokenDecoded.id);
     }
@@ -50,10 +47,7 @@ const Dashboard = () => {
   return (
     <div className="bg-slate-300 flex flex-col h-screen font-roboto">
       {/* Appbar fixed at the top */}
-      <Appbar
-        className="fixed top-0 left-0 right-0 z-10"
-        firstName={firstName}
-      />
+      <Appbar className="fixed top-0 left-0 right-0 z-10" firstName="John" />
       <div className="flex items-center my-2 border-b-2 border-gray-400">
         <Balance balance={balance} />
         <Button

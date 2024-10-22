@@ -4,12 +4,10 @@ const { User, Accounts } = require("../db");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const zod = require("zod");
-const bcrypt = require("bcrypt"); // For password hashing
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Zod schemas
 const signupBody = zod.object({
   username: zod.string().email(),
   firstName: zod.string(),
@@ -28,52 +26,48 @@ const updateBody = zod.object({
   password: zod.string(),
 });
 
-// User signup route
+// User Routes
 router.post("/signup", async (req, res) => {
-  // Zod validation
-  const { success, error } = signupBody.safeParse(req.body);
-  if (!success) return res.status(411).json({ msg: "Invalid input", error });
+  // Implement user signup logic
+  const { username, firstName, lastName, password } = req.body; 
 
-  const { username, firstName, lastName, password } = req.body;
-
+  //zod validation
+  const { success } = signupBody.safeParse(req.body);
+  if (!success) return res.status(411).json({ msg: "Invalid input" });
   try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ username });
+
+    //check existing user
+    const existingUser = await User.findOne({ username: username });
     if (existingUser) {
       return res.status(400).json({ msg: "User already exists" });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user
+    //create new user
     const user = new User({
-      username,
-      firstName,
-      lastName,
-      password: hashedPassword, // Save the hashed password
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      password: password,
     });
 
-    // Create account with random balance
+    //give the user a random balance between 1 and 10000.
     const account = new Accounts({
-      balance: 1 + Math.floor(Math.random() * 10000),
+      balance: 1 + Math.random() * 10000,
       userId: user._id,
     });
 
-    // Save user and account
+    //save user details
     await user.save();
+
+    //save account details
     await account.save();
 
-    // Return successful response
+    //return if successful
     return res.json({
       msg: "User created successfully",
-      token: jwt.sign(
-        { id: user._id, username: user.username, firstName: user.firstName },
-        JWT_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      ),
+      token: jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
+        expiresIn: "1h",
+      }),
     });
   } catch (err) {
     return res
@@ -82,57 +76,44 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// User signin route
 router.post("/signin", async (req, res) => {
-  // Zod validation
-  const { success, error } = signinBody.safeParse(req.body);
-  if (!success) return res.status(411).json({ msg: "Invalid input", error });
-
+  // Implement admin signin logic
   const { username, password } = req.body;
 
+  //zod validation
+  const { success } = signinBody.safeParse(req.body);
+  if (!success) return res.status(411).json({ msg: "Invalid input" });
+
   try {
-    // Find user
-    const user = await User.findOne({ username });
-    if (!user) return res.status(411).json({ msg: "User not found" });
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(411).json({ msg: "user not found" });
+    }
 
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ msg: "Incorrect password" });
-
-    // Generate token
-    const token = jwt.sign(
-      { id: user._id, username: user.username, firstName: user.firstName },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    return res.json({ token });
+    var token = jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    return res.json({
+      token,
+    });
   } catch (err) {
-    return res.json({ msg: "Error signing in", error: err.message });
+    return res.json({ msg: "error signing in", error: err.message });
   }
 });
 
-// User update route
 router.put("/update", authMiddleware, async (req, res) => {
-  // Zod validation
-  const { success, error } = updateBody.safeParse(req.body);
-  if (!success) return res.status(411).json({ msg: "Invalid input", error });
-
+  // Implement user update logic
   const { firstName, lastName, password } = req.body;
-  const userId = req.user.id; // Assuming authMiddleware attaches user object
-
+  const { success } = updateBody.safeParse(req.body);
+  if (!success) return res.status(411).json({ msg: "Invalid input" });
   try {
-    // Find user by ID
-    const user = await User.findById(userId);
-    if (!user) return res.status(411).json({ msg: "User not found" });
-
-    // Update user details
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(411).json({ msg: "user not found" });
+    }
     user.firstName = firstName;
     user.lastName = lastName;
-    user.password = await bcrypt.hash(password, 10); // Hash new password
-
+    user.password = password;
     await user.save();
     return res.json({ msg: "User updated successfully" });
   } catch (err) {
@@ -142,15 +123,16 @@ router.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
-// Bulk user search route
 router.get("/bulk", async (req, res) => {
   const { filter } = req.query;
 
-  if (!filter)
+  // Ensure filter query is provided
+  if (!filter) {
     return res.status(400).json({ msg: "Filter query parameter is required" });
+  }
 
   try {
-    // Perform case-insensitive search
+    // Perform case-insensitive search on both 'firstName' and 'lastName'
     const users = await User.find(
       {
         $or: [
@@ -158,16 +140,17 @@ router.get("/bulk", async (req, res) => {
           { lastName: { $regex: filter, $options: "i" } },
         ],
       },
-      "firstName lastName _id" // Only select specific fields
+      "firstName lastName _id" // Only select 'firstName', 'lastName', and '_id'
     );
 
+    // Check if no users were found
     if (users.length === 0) {
       return res
         .status(404)
         .json({ msg: "No users found matching the filter" });
     }
 
-    // Return users
+    // Format response as required
     return res.status(200).json({
       users: users.map((user) => ({
         firstName: user.firstName,
