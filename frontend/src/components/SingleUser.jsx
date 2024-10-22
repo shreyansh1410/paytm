@@ -22,11 +22,18 @@ const SingleUser = ({ id, firstName, lastName }) => {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center h-ful">
+        <div className="flex flex-col justify-center h-full">
           <Button
             onClick={(e) => {
-              // navigate("/send?id=" + id + "&name=" + firstName);
-              <Send id={id} firstName={firstName} lastName={lastName} />;
+              navigate(
+                "/send?id=" +
+                  id +
+                  "&firstName=" +
+                  firstName +
+                  "&lastName=" +
+                  lastName
+              );
+              // <Send id={id} firstName={firstName} lastName={lastName} />;
               // alert("Hi");
             }}
             buttonText={"Send Money"}
