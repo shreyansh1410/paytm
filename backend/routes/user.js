@@ -29,13 +29,12 @@ const updateBody = zod.object({
 // User Routes
 router.post("/signup", async (req, res) => {
   // Implement user signup logic
-  const { username, firstName, lastName, password } = req.body; 
+  const { username, firstName, lastName, password } = req.body;
 
   //zod validation
   const { success } = signupBody.safeParse(req.body);
   if (!success) return res.status(411).json({ msg: "Invalid input" });
   try {
-
     //check existing user
     const existingUser = await User.findOne({ username: username });
     if (existingUser) {
@@ -65,9 +64,13 @@ router.post("/signup", async (req, res) => {
     //return if successful
     return res.json({
       msg: "User created successfully",
-      token: jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
-        expiresIn: "1h",
-      }),
+      token: jwt.sign(
+        { id: user._id, name: user.username, firstName: user.firstName },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      ),
     });
   } catch (err) {
     return res
@@ -86,13 +89,18 @@ router.post("/signin", async (req, res) => {
 
   try {
     const user = await User.findOne({ username: username });
+
     if (!user) {
       return res.status(411).json({ msg: "user not found" });
     }
-
-    var token = jwt.sign({ id: user._id, name: user.username }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const fname = user.firstName;
+    var token = jwt.sign(
+      { id: user._id, name: user.username, firstName: fname },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
     return res.json({
       token,
     });
