@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
+
 const Dashboard = () => {
   const [balance, setBalance] = useState("****");
   const [firstName, setFirstName] = useState("");
@@ -28,7 +29,7 @@ const Dashboard = () => {
         console.log(balance);
       }
     } catch (err) {
-      console.log(err.messsage);
+      console.log(err.message);
     }
   }
 
@@ -47,20 +48,40 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="bg-slate-300 flex flex-col h-screen font-roboto">
+    <div className="bg-gray-100 flex flex-col min-h-screen font-roboto">
       {/* Appbar fixed at the top */}
-      <Appbar className="fixed top-0 left-0 right-0 z-10" firstName={firstName} />
-      <div className="flex items-center my-2 border-b-2 border-gray-400">
-        <Balance balance={balance} />
-        <Button
-          className="my-2"
-          buttonText={`${
-            balance === "****" ? "Get Balance" : "Refresh Balance"
-          }`}
-          onClick={getBalance}
-        />
-      </div>
-      <Users />
+      <Appbar
+        className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md"
+        firstName={firstName}
+      />
+
+      <main className="flex-grow mt-16 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <Balance balance={balance} />
+              <Button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
+                buttonText={`${
+                  balance === "****" ? "Get Balance" : "Refresh Balance"
+                }`}
+                onClick={getBalance}
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Send money to others</h2>
+            <Users />
+          </div>
+        </div>
+      </main>
+
+      <footer className="bg-white shadow-md mt-8 py-4">
+        <div className="max-w-4xl mx-auto text-center text-gray-600">
+          © 2024 Your Bank Name. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };

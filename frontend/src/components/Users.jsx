@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 export const Users = () => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
@@ -46,7 +47,7 @@ export const Users = () => {
 
   return (
     <div className="flex flex-col p-4 px-6">
-      <div className="font-bold text-2xl">Users</div>
+      <div className="font-bold text-2xl"></div>
       <div className="my-2">
         <div className="flex px-4 py-3 rounded-md border-2 border-gray-400 overflow-hidden max-w-screen mx-auto font-[sans-serif]">
           <svg
@@ -71,13 +72,13 @@ export const Users = () => {
 
       {users.length > 0 &&
         users.map((user) => {
-          return (
-           user._id===userId?null: (<SingleUser
-            key={user._id}
-            firstName={user.firstName}
-            lastName={user.lastName}
-            id={user._id}
-          />)
+          return user._id === userId ? null : (
+            <SingleUser
+              key={user._id}
+              firstName={user.firstName}
+              lastName={user.lastName}
+              id={user._id}
+            />
           );
         })}
     </div>

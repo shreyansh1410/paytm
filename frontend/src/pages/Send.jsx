@@ -27,28 +27,28 @@ export const Send = () => {
         },
       });
       console.log(res);
-      alert("Transfer successfull");
+      alert("Transfer successful");
     } catch (err) {
       console.log(err.message);
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-xl">
-        <h1 className="mb-6 text-2xl font-semibold text-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h1 className="mb-6 text-2xl font-semibold text-gray-800">
           Send Money
         </h1>
         <div className="flex items-center mb-6">
-          <div className="flex items-center justify-center w-10 h-10 mr-4 text-lg font-medium text-gray-800 bg-gray-300 rounded-full">
+          <div className="flex items-center justify-center w-10 h-10 mr-4 text-lg font-medium text-white bg-blue-500 rounded-full">
             {firstName[0]}
           </div>
-          <span className="text-lg font-medium text-gray-300">{`${firstName} ${lastName}`}</span>
+          <span className="text-lg font-medium text-gray-700">{`${firstName} ${lastName}`}</span>
         </div>
         <div className="mb-6">
           <label
             htmlFor="amount"
-            className="block mb-2 text-sm font-medium text-gray-300"
+            className="block mb-2 text-sm font-medium text-gray-600"
           >
             Amount (in ₹)
           </label>
@@ -56,7 +56,7 @@ export const Send = () => {
             id="amount"
             type="number"
             placeholder="Enter amount"
-            className="w-full px-3 py-2 text-gray-200 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             onChange={(e) => {
               setAmount(e.target.value);
             }}
@@ -69,6 +69,7 @@ export const Send = () => {
               alert("send");
               sendMoney();
             }}
+            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <ArrowRight className="ml-2" size={16} />
           </Button>
