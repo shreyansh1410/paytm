@@ -1,30 +1,48 @@
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../components/Button";
-import { Heading } from "../components/Heading";
-import { InputBox } from "../components/InputBox";
+import { ArrowRight } from "lucide-react";
 
 export const Send = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const userId = searchParams.get("id");
-  const firstName = searchParams.get("firstName");
-  const lastName = searchParams.get("lastName");
+  const firstName = searchParams.get("firstName") || "J";
+  const lastName = searchParams.get("lastName") || "Doe";
+
   return (
-    <div className="flex items-center justify-center min-h-[100vh] bg-black">
-      <div className="flex flex-col mx-auto max-w-screen-lg text-xl bg-slate-800 p-4 rounded-md">
-        <div className="p-2 mx-28">
-          <Heading heading={"Send Money"} />
-        </div>
-        <div className="flex justify-start items-center p-2 mx-28">
-          <div className="mr-2 bg-slate-500 rounded-full text-2xl w-12 h-12 items-center justify-center flex">
-            {firstName?firstName[0]:"G"}
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-xl">
+        <h1 className="mb-6 text-2xl font-semibold text-gray-100">
+          Send Money
+        </h1>
+        <div className="flex items-center mb-6">
+          <div className="flex items-center justify-center w-10 h-10 mr-4 text-lg font-medium text-gray-800 bg-gray-300 rounded-full">
+            {firstName[0]}
           </div>
-          <span className="font-medium">{`${firstName} ${lastName}`}</span>
-        </div>  
-        <div className="p-2 h-[100px]">
-          <InputBox label={"Amount (in ₹)"} placeholder={"Amount"} />
+          <span className="text-lg font-medium text-gray-300">{`${firstName} ${lastName}`}</span>
         </div>
-        <div className="p-2 flex justify-end">
-          <Button buttonText={"Send"} />
+        <div className="mb-6">
+          <label
+            htmlFor="amount"
+            className="block mb-2 text-sm font-medium text-gray-300"
+          >
+            Amount (in ₹)
+          </label>
+          <input
+            id="amount"
+            type="number"
+            placeholder="Enter amount"
+            className="w-full px-3 py-2 text-gray-200 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            buttonText="Send"
+            onClick={() => {
+              alert("send");
+            }}
+          >
+            <ArrowRight className="ml-2" size={16} />
+          </Button>
         </div>
       </div>
     </div>
